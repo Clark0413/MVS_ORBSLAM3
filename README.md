@@ -13,7 +13,8 @@ Build
 2.Building ORB-SLAM3 for ROS nodes 
 
     sudo apt install python-is-python3 
-  	export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/ORB_SLAM3/Examples/ROS 
+  	echo "export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/ORB_SLAM3/Examples/ROS" >> ~/.bashrc 
+	source ~/.bashrc
 	chmod +x build_ros.sh 
    	./build_ros.sh
 `PATH/ORB_SLAM3/Examples/ROS 請填入的絕對路徑`

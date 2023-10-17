@@ -32,6 +32,9 @@ Build
 
 `/image`填入ROS 影像Topic的名稱
 
+test_bag 
+https://mailntustedutw-my.sharepoint.com/:u:/g/personal/m11102142_ms_ntust_edu_tw/EfrhiSP828BGgy1lIW7vcHYBkjEw27qrw3CGHZCZ2BEakg?e=ruXtEa
+
 3.結束運行
 
 	rosnode kill -a

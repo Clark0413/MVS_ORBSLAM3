@@ -29,8 +29,8 @@ def publish_video():
             # frame [:, :, 2] = 127
             # frame = cv2.cvtColor(frame, cv2.COLOR_YUV2RGB)
             
-            # frame = cv2.erode(frame, kernel, iterations = 2)
-            # frame = cv2.dilate(frame, kernel, iterations = 1)
+            frame = cv2.erode(frame, kernel, iterations = 2)
+            frame = cv2.dilate(frame, kernel, iterations = 1)
             
             # frame = 255 - frame
 
@@ -41,9 +41,9 @@ def publish_video():
             # frame = cv2.convertScaleAbs(frame)
 
             # #
-            # dilated_image = cv2.dilate(frame, kernel, iterations=5)
+            dilated_image = cv2.dilate(frame, kernel, iterations=2)
             # #
-            # eroded_image = cv2.erode(frame, kernel, iterations=5)
+            eroded_image = cv2.erode(frame, kernel, iterations=1)
 
             # gradient_image = dilated_image - eroded_image
             # alpha = 0.7 

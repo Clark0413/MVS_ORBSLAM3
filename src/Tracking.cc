@@ -2656,11 +2656,11 @@ void Tracking::Track()
             mlFrameTimes.push_back(mlFrameTimes.back());
             mlbLost.push_back(mState==LOST);
         }
-        //sam
-        Sophus::SE3f pose=mCurrentFrame.GetPose();
-        Eigen::Quaternionf q = pose.unit_quaternion();
-        Eigen::Vector3f twc = pose.translation();
-        cout <<  "\n" <<setprecision(9) << twc(0) << " " << twc(1) << " " << twc(2) << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
+        //sam print_pose
+        // Sophus::SE3f pose=mCurrentFrame.GetPose();
+        // Eigen::Quaternionf q = pose.unit_quaternion();
+        // Eigen::Vector3f twc = pose.translation();
+        // cout <<  "\n" <<setprecision(9) << twc(0) << " " << twc(1) << " " << twc(2) << " " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << endl;
 
     }
 

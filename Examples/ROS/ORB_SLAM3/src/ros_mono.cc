@@ -36,7 +36,8 @@ class ImageGrabber
 public:
     ImageGrabber(ORB_SLAM3::System* pSLAM):mpSLAM(pSLAM){}
 
-    void GrabImage(const sensor_msgs::ImageConstPtr& msg);
+    void GrabImage_rgb(const sensor_msgs::ImageConstPtr& msg);
+    void GrabImage_gray(const sensor_msgs::ImageConstPtr& msg);
 
     ORB_SLAM3::System* mpSLAM;
 };
@@ -46,22 +47,33 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "Mono");
     ros::start();
 
-    if(argc != 4)
+    if(argc != 5)
     {
-        cerr << endl << "Usage: rosrun ORB_SLAM3 Mono path_to_vocabulary path_to_settings" << endl;        
+        cerr << endl << "Usage: rosrun ORB_SLAM3 Mono path_to_vocabulary path_to_settings topic_name rgb" << endl;        
         ros::shutdown();
         return 1;
     }    
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,false);
-    //ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,true);
+    // ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,false);
+    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR,true);
 
     ImageGrabber igb(&SLAM);
 
     ros::NodeHandle nodeHandler;
     // ros::Subscriber sub = nodeHandler.subscribe("/mono/left", 1, &ImageGrabber::GrabImage, &igb);
-    ros::Subscriber sub = nodeHandler.subscribe(argv[3], 1, &ImageGrabber::GrabImage, &igb);
+    //  ros::Subscriber sub = nodeHandler.subscribe(argv[3], 1, &ImageGrabber::GrabImage_gray, &igb);
+    string a = argv[4];
+    ros::Subscriber sub;
+    if (a == "gray"){
+        cout<< "gray_image\n";
+        sub = nodeHandler.subscribe(argv[3], 1, &ImageGrabber::GrabImage_gray, &igb);
+    }
+    else{
+        
+        cout<< "rgb_image\n";
+        sub = nodeHandler.subscribe(argv[3], 1, &ImageGrabber::GrabImage_rgb, &igb);
+    }
     // ros::Subscriber sub = nodeHandler.subscribe("/cam0/image_raw", 1, &ImageGrabber::GrabImage,&igb);
 
     ros::spin();
@@ -78,12 +90,12 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
+void ImageGrabber::GrabImage_gray(const sensor_msgs::ImageConstPtr& msg)
 {
     // Copy the ros image message to cv::Mat.
     cv_bridge::CvImageConstPtr cv_ptr;
     try
-    {
+    {   
         cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::MONO8);
         // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::"8UC1");
         
@@ -93,9 +105,31 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+    // cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
     cv::Mat im = cv_ptr->image;
-    clahe->apply(im, im);
+    // clahe->apply(im, im);
+    mpSLAM->TrackMonocular(im,cv_ptr->header.stamp.toSec());
+}
+void ImageGrabber::GrabImage_rgb(const sensor_msgs::ImageConstPtr& msg)
+{
+    // Copy the ros image message to cv::Mat.
+    cv_bridge::CvImageConstPtr cv_ptr;
+    try
+    {   
+        // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::MONO8);
+
+        cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings:: BGR8);
+        // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::"8UC1");
+        
+    }
+    catch (cv_bridge::Exception& e)
+    {
+        ROS_ERROR("cv_bridge exception: %s", e.what());
+        return;
+    }
+    // cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
+    cv::Mat im = cv_ptr->image;
+    // clahe->apply(im, im);
     mpSLAM->TrackMonocular(im,cv_ptr->header.stamp.toSec());
 }
 

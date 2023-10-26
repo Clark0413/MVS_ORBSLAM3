@@ -9,8 +9,7 @@ def publish_video():
     rospy.init_node('video_publisher', anonymous=True)
 
     image_pub = rospy.Publisher('/image_edge', Image, queue_size=10)
-    
-    cap = cv2.VideoCapture(0) 
+    cap = cv2.VideoCapture(1, cv2.CAP_V4L2) 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
@@ -58,11 +57,13 @@ def publish_video():
             
          
             image_pub.publish(image_msg)
-        
+        else :
+            print("err")
         rate.sleep()
 
 if __name__ == '__main__':
     try:
         publish_video()
     except rospy.ROSInterruptException:
-        pass
+        print("err")
+

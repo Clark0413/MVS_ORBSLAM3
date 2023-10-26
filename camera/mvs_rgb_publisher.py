@@ -11,8 +11,8 @@ def publish_video():
     mvs_pub = rospy.Publisher('/image_edge', Image, queue_size=10)
     rgb_pub = rospy.Publisher('/image_rgb', Image, queue_size=10)
 
-    cap_rgb = cv2.VideoCapture(0)  
-    cap_mvs = cv2.VideoCapture(2)  
+    cap_rgb = cv2.VideoCapture(3)  
+    cap_mvs = cv2.VideoCapture(1, cv2.CAP_V4L2)  
     cap_rgb.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap_rgb.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     cap_mvs.set(cv2.CAP_PROP_FRAME_WIDTH, 640)

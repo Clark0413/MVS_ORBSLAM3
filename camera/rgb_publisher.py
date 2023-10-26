@@ -9,29 +9,27 @@ import numpy as np
 def publish_video():
     rospy.init_node('video_publisher', anonymous=True)
 
-    image_pub = rospy.Publisher('/image', Image, queue_size=10)
+    image_pub = rospy.Publisher('/image_rgb', Image, queue_size=10)
     
-    # 打开摄像头
-    cap = cv2.VideoCapture(0)  # 0表示默认的摄像头
+
+    cap = cv2.VideoCapture(0)  
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     bridge = CvBridge()
     
-    rate = rospy.Rate(10)  # fps
+    rate = rospy.Rate(20)  # fps
 
     while not rospy.is_shutdown():
         ret, frame = cap.read()
         if ret:
 
-            # 将OpenCV图像转换为ROS图像消息
             header = Header()
             header.stamp = rospy.Time.now()
             image_msg = bridge.cv2_to_imgmsg(frame, encoding="bgr8")
             # image_msg = bridge.cv2_to_imgmsg(frame, encoding="mono8")
             image_msg.header = header
             
-            # 发布图像消息到指定话题
             image_pub.publish(image_msg)
         
         rate.sleep()

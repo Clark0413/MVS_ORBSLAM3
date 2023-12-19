@@ -1,5 +1,6 @@
 
-===
+ubuntu 18.04 可以用這個docker image 
+	https://hub.docker.com/r/lmwafer/orb-slam-3-ready/tags
 
 Build
 ---

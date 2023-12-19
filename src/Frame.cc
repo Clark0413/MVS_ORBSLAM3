@@ -26,6 +26,10 @@
 #include "ORBmatcher.h"
 #include "GeometricCamera.h"
 
+#include <iostream>
+#include <fstream>
+using namespace std;
+
 #include <thread>
 #include <include/CameraModels/Pinhole.h>
 #include <include/CameraModels/KannalaBrandt8.h>
@@ -511,7 +515,12 @@ void Frame::AssignFeaturesToGrid()
  * @param x1 界限
  */
 void Frame::ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1)
-{
+{   
+    //sam
+    clock_t start,end;
+	start = clock();
+
+
     vector<int> vLapping = {x0,x1};
     // 判断是左图还是右图
     if(flag==0)
@@ -520,6 +529,11 @@ void Frame::ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1)
     else
         // 右图的话就需要使用右图指定的特征点提取器，并将提取结果保存到对应的变量中 
         monoRight = (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight,vLapping);
+    
+    end = clock();
+    ofstream ofs;
+    ofs.open("extraction_time.txt", ios::app);
+    ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
 }
 
 bool Frame::isSet() const {

@@ -258,6 +258,7 @@ namespace ORB_SLAM3
      */
     int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPointMatches)
     {
+
         // 获取该关键帧的地图点
         const vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
@@ -1949,6 +1950,8 @@ namespace ORB_SLAM3
      */
     int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, const float th, const bool bMono)
     {
+
+
         int nmatches = 0;
 
         // Rotation Histogram (to check rotation consistency)

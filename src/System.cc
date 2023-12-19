@@ -174,7 +174,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         cout << "Load File" << endl;
 
         // Load the file with an earlier session
-        //clock_t start = clock();
+        //clock_t 
         cout << "Initialization of Atlas from file: " << mStrLoadAtlasFromFile << endl;
         bool isRead = LoadAtlas(FileType::BINARY_FILE);
 
@@ -1468,7 +1468,7 @@ void System::SaveAtlas(int type)
     // mStrSaveAtlasToFile 如果配置文件里面没有指定，则不会保存地图
     if(!mStrSaveAtlasToFile.empty())
     {
-        //clock_t start = clock();
+        //clock_t 
 
         // Save the current session
         // 1. 预保存想要保存的数据

@@ -1,4 +1,4 @@
-ORB-SLAM3 + EQ
+
 ===
 
 Build
@@ -23,23 +23,13 @@ Build
 ---
 1.config
 
-可參考 `./Examples/ROS/mycam.yaml`，填入相機參數以及map儲存、讀取路徑
+修改 `./camera/mvs.yaml`，填入相機參數以及map儲存、讀取路徑
 
-2.運行
+2.run
 
-	rosrun ORB_SLAM3 Mono ./ORB_SLAM3/Vocabulary/ORBvoc.txt ./ORB_SLAM3/Examples/ROS/mycam.yaml /image
-`./ORB_SLAM3/Examples/ROS/mycam.yaml` 填入自己相機的設定檔路徑
-
-`/image`填入ROS 影像Topic的名稱
-
-test_bag 
-https://mailntustedutw-my.sharepoint.com/:u:/g/personal/m11102142_ms_ntust_edu_tw/EfrhiSP828BGgy1lIW7vcHYBkjEw27qrw3CGHZCZ2BEakg?e=ruXtEa
-
-3.結束運行
-
-	rosnode kill -a
-	
-結束後會儲存map
+	跑`rosrun.sh`
+只須注意最後兩個參數,分別為`topic 名稱`、`輸入模式` 
+要修改的話修改`Examples/ROS/ORB_SLAM3/src/ros_mono.cc`
 
 
 

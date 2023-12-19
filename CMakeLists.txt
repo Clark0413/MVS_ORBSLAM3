@@ -44,6 +44,8 @@ find_package(realsense2)
 #sam
 find_package(catkin  REQUIRED COMPONENTS
   roscpp
+  cv_bridge
+  image_transport
 )
 include_directories(include ${catkin_INCLUDE_DIRS} )
 include_directories(

@@ -10,7 +10,7 @@
 #System.LoadAtlasFromFile: "Session_MH01_MH02_MH03_Mono"
 
 # The store file is created from the current session, if a file with the same name exists it is deleted
-#System.SaveAtlasToFile: "Session_MH01_MH02_MH03_Mono"
+System.SaveAtlasToFile: "t2_301_king_rgb"
 
 #--------------------------------------------------------------------------------------------
 # Camera Parameters. Adjust them!
@@ -20,15 +20,15 @@ File.version: "1.0"
 Camera.type: "PinHole"
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera1.fx: 559.21406644
-Camera1.fy: 558.66641641
-Camera1.cx: 325.17726254
-Camera1.cy: 220.25130402
+Camera1.fx: 551.04581
+Camera1.fy: 550.8042
+Camera1.cx: 328.75585
+Camera1.cy: 216.88184
 
-Camera1.k1: -4.08230625e-01
-Camera1.k2: 1.08797545e-01
-Camera1.p1: 3.81121721e-04 
-Camera1.p2: 9.95970688e-04
+Camera1.k1: -0.400878
+Camera1.k2: 0.174268
+Camera1.p1: -0.000146
+Camera1.p2: -0.000218
 
 # Camera resolution
 Camera.width: 640
@@ -45,7 +45,7 @@ Camera.RGB: 0
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1000
+ORBextractor.nFeatures: 1200
 
 # ORB Extractor: Scale factor between levels in the scale pyramid 	
 ORBextractor.scaleFactor: 1.2
@@ -63,11 +63,13 @@ ORBextractor.minThFAST: 3
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
 #---------------------------------------------------------------------------------------------
-Viewer.KeyFrameSize: 0.05
+# Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameSize: 0.025
 Viewer.KeyFrameLineWidth: 1.0
 Viewer.GraphLineWidth: 0.9
 Viewer.PointSize: 2.0
-Viewer.CameraSize: 0.08
+# Viewer.CameraSize: 0.08
+Viewer.CameraSize: 0.04
 Viewer.CameraLineWidth: 3.0
 Viewer.ViewpointX: 0.0
 Viewer.ViewpointY: -0.7

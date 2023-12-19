@@ -65,8 +65,8 @@ int main(int argc, char **argv)
     //  ros::Subscriber sub = nodeHandler.subscribe(argv[3], 1, &ImageGrabber::GrabImage_gray, &igb);
     string a = argv[4];
     ros::Subscriber sub;
-    if (a == "gray"){
-        cout<< "gray_image\n";
+    if (a == "mvs"){
+        cout<< "mvs_image\n";
         sub = nodeHandler.subscribe(argv[3], 1, &ImageGrabber::GrabImage_gray, &igb);
     }
     else{
@@ -96,18 +96,17 @@ void ImageGrabber::GrabImage_gray(const sensor_msgs::ImageConstPtr& msg)
     cv_bridge::CvImageConstPtr cv_ptr;
     try
     {   
-        cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::MONO8);
-        // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::"8UC1");
-        
+        // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::MONO8);
+        cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings:: BGR8);
     }
     catch (cv_bridge::Exception& e)
     {
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    // cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
     cv::Mat im = cv_ptr->image;
-    // clahe->apply(im, im);
+    cv::cvtColor(im, im, cv::COLOR_BGR2YUV);
+    cv::extractChannel(im, im, 0); 
     mpSLAM->TrackMonocular(im,cv_ptr->header.stamp.toSec());
 }
 void ImageGrabber::GrabImage_rgb(const sensor_msgs::ImageConstPtr& msg)
@@ -116,20 +115,15 @@ void ImageGrabber::GrabImage_rgb(const sensor_msgs::ImageConstPtr& msg)
     cv_bridge::CvImageConstPtr cv_ptr;
     try
     {   
-        // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::MONO8);
-
         cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings:: BGR8);
-        // cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::"8UC1");
         
     }
     catch (cv_bridge::Exception& e)
     {
         ROS_ERROR("cv_bridge exception: %s", e.what());
-        return;
+        return; 
     }
-    // cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(3.0, cv::Size(8, 8));
     cv::Mat im = cv_ptr->image;
-    // clahe->apply(im, im);
     mpSLAM->TrackMonocular(im,cv_ptr->header.stamp.toSec());
 }
 

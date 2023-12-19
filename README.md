@@ -28,7 +28,7 @@ Build
 
 2.run
 
-	跑`rosrun.sh`
+跑`rosrun.sh`
 只須注意最後兩個參數,分別為`topic 名稱`、`輸入模式` 
 要修改的話修改`Examples/ROS/ORB_SLAM3/src/ros_mono.cc`
 

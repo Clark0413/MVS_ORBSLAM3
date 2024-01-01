@@ -532,7 +532,7 @@ void Frame::ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1)
     
     end = clock();
     ofstream ofs;
-    ofs.open("extraction_time.txt", ios::app);
+    ofs.open("results/extraction_time.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
 }
 

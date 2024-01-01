@@ -1682,7 +1682,7 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
 
         end = clock();
         ofstream ofs;
-        ofs.open("rgb2gary.txt", ios::app);
+        ofs.open("results/rgb2gary.txt", ios::app);
         ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
     }
     else if(mImGray.channels()==4)
@@ -3204,7 +3204,7 @@ bool Tracking::TrackReferenceKeyFrame()
     end = clock();
      
     ofstream ofs;
-    ofs.open("3th byKeyFrame.txt", ios::app);
+    ofs.open("results/3th byKeyFrame.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
 
     // 匹配数目小于15，认为跟踪失败
@@ -3421,7 +3421,7 @@ bool Tracking::TrackWithMotionModel()
     end = clock();
      
     ofstream ofs;
-    ofs.open("1th byLastFrame.txt", ios::app);
+    ofs.open("results/1th byLastFrame.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
 
     // If few matches, uses a wider window search
@@ -3440,7 +3440,7 @@ bool Tracking::TrackWithMotionModel()
         end = clock();
          
         ofstream ofs;
-        ofs.open("2th byLastFrame.txt", ios::app);
+        ofs.open("results/2th byLastFrame.txt", ios::app);
         ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
         Verbose::PrintMess("Matches with wider search: " + to_string(nmatches), Verbose::VERBOSITY_NORMAL);
 
@@ -4424,7 +4424,7 @@ bool Tracking::Relocalization()
             end = clock();
              
             ofstream ofs;
-            ofs.open("4th byKeyFrame.txt", ios::app);
+            ofs.open("results/4th byKeyFrame.txt", ios::app);
             ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
             
             // 如果和当前帧的匹配数小于15,那么只能放弃这个关键帧
@@ -4545,7 +4545,7 @@ bool Tracking::Relocalization()
                     end = clock();
                      
                     ofstream ofs;
-                    ofs.open("5th byKeyFrame.txt", ios::app);
+                    ofs.open("results/5th byKeyFrame.txt", ios::app);
                     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
 
                     // 如果通过投影过程新增了比较多的匹配特征点对
@@ -4576,7 +4576,7 @@ bool Tracking::Relocalization()
                             end = clock();
                              
                             ofstream ofs;
-                            ofs.open("6th byKeyFrame.txt", ios::app);
+                            ofs.open("results/6th byKeyFrame.txt", ios::app);
                             ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
 
                             // Final optimization

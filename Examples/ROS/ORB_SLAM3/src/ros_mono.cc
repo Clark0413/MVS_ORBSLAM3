@@ -107,7 +107,14 @@ void ImageGrabber::GrabImage_gray(const sensor_msgs::ImageConstPtr& msg)
     cv::Mat im = cv_ptr->image;
     cv::cvtColor(im, im, cv::COLOR_BGR2YUV);
     cv::extractChannel(im, im, 0); 
+    clock_t start,end;
+    start = clock();
+    
     mpSLAM->TrackMonocular(im,cv_ptr->header.stamp.toSec());
+    end = clock();
+    ofstream ofs;
+    ofs.open("results/fps.txt", ios::app);
+    ofs  <<""<<  double(CLOCKS_PER_SEC/double(end-start))<<endl;
 }
 void ImageGrabber::GrabImage_rgb(const sensor_msgs::ImageConstPtr& msg)
 {

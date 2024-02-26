@@ -59,7 +59,7 @@
 #include <iostream>
 
 #include "ORBextractor.h"
-
+#include "Set.h"
 
 using namespace cv;
 using namespace std;
@@ -469,10 +469,10 @@ ORBextractor::ORBextractor(int _nfeatures,		//指定要提取的特征点数目
 						   float _scaleFactor,	//指定图像金字塔的缩放系数
 						   int _nlevels,		//指定图像金字塔的层数
 						   int _iniThFAST,		//指定初始的FAST特征点提取参数，可以提取出最明显的角点
-						   int _minThFAST):		//如果因为图像纹理不丰富提取出的特征点不多，为了达到想要的特征点数目，
-												//就使用这个参数提取出不是那么明显的角点
+						   int _minThFAST,      //如果因为图像纹理不丰富提取出的特征点不多，为了达到想要的特征点数目，
+                           int extractor_skip_)://就使用这个参数提取出不是那么明显的角点												
     nfeatures(_nfeatures), scaleFactor(_scaleFactor), nlevels(_nlevels),
-    iniThFAST(_iniThFAST), minThFAST(_minThFAST)//设置这些参数
+    iniThFAST(_iniThFAST), minThFAST(_minThFAST), extractor_skip(extractor_skip_)//设置这些参数
 {
 	//存储每层图像缩放系数的vector调整为符合图层数目的大小
     mvScaleFactor.resize(nlevels);  
@@ -1137,7 +1137,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
                 cv::Scalar average = cv::mean(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX));
                 // ofs<<"\n---"+to_string(average[0]) +"---\n";
                 // ofs2 <<"\n---"+to_string(average[0]) +"---\n";
-                if (average[0] > 200)
+                if (average[0] > extractor_skip)
                     continue;
 
                 // FAST提取兴趣点, 自适应阈值
@@ -1172,25 +1172,6 @@ void ORBextractor::ComputeKeyPointsOctTree(
 						//在后面将会被继续转换成为在当前图层的扩充图像坐标系下的坐标
                         (*vit).pt.x+=j*wCell;
                         (*vit).pt.y+=i*hCell;
-                        // int x  = (*vit).pt.x;
-                        // int y = (*vit).pt.y;
-                        // int x = ((*vit).pt.x + minBorderX) / mvInvScaleFactor[level];
-                        // int y = ((*vit).pt.y + minBorderY) / mvInvScaleFactor[level];
-
-                        // int min = mvImagePyramid[level].at<uchar>(x , y);
-                        // int min = 255;
-                                    
-                        // for(int k=0; k<49; k++){
-                        //     int c = mvImagePyramid[0].at<uchar>( x + ((k/7)-3), y + ((k%7)-3));
-                        //     if (c < min)
-                        //         min = c;
-                        // }
-                        // if (min < 150) {
-                        //     ofs  << min <<"  "<<x<<", "<<y<< endl;
-                        //     vToDistributeKeys.push_back(*vit);
-                        // }
-                        // ofs2  << min <<"  "<<x<<", "<<y<< endl;
-
                         //然后将其加入到”等待被分配“的特征点容器中
                         vToDistributeKeys.push_back(*vit);
                     }//遍历图像cell中的所有的提取出来的FAST角点，并且恢复其在整个金字塔当前层图像下的坐标
@@ -1233,28 +1214,7 @@ void ORBextractor::ComputeKeyPointsOctTree(
             keypoints[i].octave=level;
 			//记录计算方向的patch，缩放后对应的大小， 又被称作为特征点半径
             keypoints[i].size = scaledPatchSize;
-
-        //     int avg = 255;
-                        
-        //     for(int k=0; k<49; k++){
-
-        //         // int c = (mvImagePyramid[0].at<cv::Vec3b>( keypoints[i].pt.x/scale + ((k/7)-3), keypoints[i].pt.y/scale + ((k%7)-3))[0] + 
-        //         // mvImagePyramid[0].at<cv::Vec3b>( keypoints[i].pt.x/scale + ((k/7)-3), keypoints[i].pt.y/scale + ((k%7)-3))[1] + 
-        //         // mvImagePyramid[0].at<cv::Vec3b>( keypoints[i].pt.x/scale + ((k/7)-3), keypoints[i].pt.y/scale + ((k%7)-3))[2])/3;
-        //         int c = mvImagePyramid[0].at<uchar>( keypoints[i].pt.x/scale + ((k/7)-3), keypoints[i].pt.y/scale + ((k%7)-3));
-        //         if (c < avg)
-        //             avg = c;
-        //         }
-        //     if (avg > 200) {
-        //         keypoints.erase(keypoints.begin() + i);
-        //     }else{
-        //         ofs  << avg <<"  "<<keypoints[i].pt.x<<", "<<keypoints[i].pt.y<< endl;
-        //     }
-        //     ofs2  << avg <<"  "<<keypoints[i].pt.x<<", "<<keypoints[i].pt.y<< endl;
-
         }
-        // ofs<<"\n======="+to_string(level)+"===========\n";
-        // ofs2 <<"\n======="+to_string(level)+"===========\n";
 
 
     }
@@ -1632,16 +1592,20 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
 
     // Step 3 计算图像的特征点，并且将特征点进行均匀化。均匀的特征点可以提高位姿计算精度
 	// 存储所有的特征点，注意此处为二维的vector，第一维存储的是金字塔的层数，第二维存储的是那一层金字塔图像里提取的所有特征点
-    vector < vector<KeyPoint> > allKeypoints; 
+    vector < vector<KeyPoint> > allKeypoints;
 
+    #ifdef RUN_TIME 
     clock_t start,end;
 	start = clock();
+    #endif
     //使用四叉树的方式计算每层图像的特征点并进行分配
     ComputeKeyPointsOctTree(allKeypoints);
+    #ifdef RUN_TIME 
     end = clock();
     ofstream ofs;
     ofs.open("results/ComputeKeyPointsOctTree_time.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
+    #endif
 
 	//使用传统的方法提取并平均分配图像的特征点，作者并未使用
     // ComputeKeyPointsOld(allKeypoints);

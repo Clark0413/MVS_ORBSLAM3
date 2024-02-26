@@ -509,6 +509,7 @@ void Settings::readORB(cv::FileStorage &fSettings)
     nLevels_ = readParameter<int>(fSettings, "ORBextractor.nLevels", found);
     initThFAST_ = readParameter<int>(fSettings, "ORBextractor.iniThFAST", found);
     minThFAST_ = readParameter<int>(fSettings, "ORBextractor.minThFAST", found);
+    extractor_skip_ = readParameter<int>(fSettings, "ORBextractor.extractor_skip", found);
 }
 
 void Settings::readViewer(cv::FileStorage &fSettings)
@@ -725,6 +726,7 @@ ostream &operator<<(std::ostream &output, const Settings &settings)
     output << "\t-ORB number of scales: " << settings.nLevels_ << endl;
     output << "\t-Initial FAST threshold: " << settings.initThFAST_ << endl;
     output << "\t-Min FAST threshold: " << settings.minThFAST_ << endl;
+    output << "\t-Extractor Skip threshold: " << settings.extractor_skip_ << endl;
 
     return output;
 }

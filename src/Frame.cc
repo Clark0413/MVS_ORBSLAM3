@@ -25,6 +25,7 @@
 #include "Converter.h"
 #include "ORBmatcher.h"
 #include "GeometricCamera.h"
+#include "Set.h"
 
 #include <iostream>
 #include <fstream>
@@ -33,6 +34,7 @@ using namespace std;
 #include <thread>
 #include <include/CameraModels/Pinhole.h>
 #include <include/CameraModels/KannalaBrandt8.h>
+
 
 namespace ORB_SLAM3
 {
@@ -347,7 +349,7 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     AssignFeaturesToGrid();
 }
 
-// 单目模式
+// 单目模式 單目
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extractor,ORBVocabulary* voc, GeometricCamera* pCamera, cv::Mat &distCoef, const float &bf, const float &thDepth, Frame* pPrevF, const IMU::Calib &ImuCalib)
     :mpcpi(NULL),mpORBvocabulary(voc),mpORBextractorLeft(extractor),mpORBextractorRight(static_cast<ORBextractor*>(NULL)),
      mTimeStamp(timeStamp), mK(static_cast<Pinhole*>(pCamera)->toK()), mK_(static_cast<Pinhole*>(pCamera)->toK_()), mDistCoef(distCoef.clone()), mbf(bf), mThDepth(thDepth),
@@ -382,7 +384,6 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
 
     // Step 3 对这个单目图像进行提取特征点, 第一个参数0-左图， 1-右图
     ExtractORB(0,imGray,0,1000);
-
 #ifdef REGISTER_TIMES
     std::chrono::steady_clock::time_point time_EndExtORB = std::chrono::steady_clock::now();
 
@@ -516,10 +517,10 @@ void Frame::AssignFeaturesToGrid()
  */
 void Frame::ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1)
 {   
-    //sam
+    #ifdef RUN_TIME 
     clock_t start,end;
 	start = clock();
-
+    #endif
 
     vector<int> vLapping = {x0,x1};
     // 判断是左图还是右图
@@ -529,11 +530,12 @@ void Frame::ExtractORB(int flag, const cv::Mat &im, const int x0, const int x1)
     else
         // 右图的话就需要使用右图指定的特征点提取器，并将提取结果保存到对应的变量中 
         monoRight = (*mpORBextractorRight)(im,cv::Mat(),mvKeysRight,mDescriptorsRight,vLapping);
-    
+    #ifdef RUN_TIME 
     end = clock();
     ofstream ofs;
     ofs.open("results/extraction_time.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
+    #endif
 }
 
 bool Frame::isSet() const {

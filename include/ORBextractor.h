@@ -47,7 +47,7 @@ public:
     enum {HARRIS_SCORE=0, FAST_SCORE=1 };
 
     ORBextractor(int nfeatures, float scaleFactor, int nlevels,
-                 int iniThFAST, int minThFAST);
+                 int iniThFAST, int minThFAST, int extractor_skip=256);
 
     ~ORBextractor(){}
 
@@ -97,6 +97,7 @@ protected:
     int nlevels;
     int iniThFAST;
     int minThFAST;
+    int extractor_skip;
 
     std::vector<int> mnFeaturesPerLevel;
 

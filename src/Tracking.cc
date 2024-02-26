@@ -28,6 +28,7 @@
 #include "KannalaBrandt8.h"
 #include "MLPnPsolver.h"
 #include "GeometricTools.h"
+#include "Set.h"
 
 #include <iostream>
 
@@ -625,14 +626,15 @@ void Tracking::newParameterLoader(Settings *settings) {
     int fIniThFAST = settings->initThFAST();
     int fMinThFAST = settings->minThFAST();
     float fScaleFactor = settings->scaleFactor();
+    int extractor_skip = settings->extractor_skip();
 
-    mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+    mpORBextractorLeft = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST,extractor_skip);
 
     if(mSensor==System::STEREO || mSensor==System::IMU_STEREO)
-        mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+        mpORBextractorRight = new ORBextractor(nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST,extractor_skip);
 
     if(mSensor==System::MONOCULAR || mSensor==System::IMU_MONOCULAR)
-        mpIniORBextractor = new ORBextractor(5*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST);
+        mpIniORBextractor = new ORBextractor(5*nFeatures,fScaleFactor,nLevels,fIniThFAST,fMinThFAST,extractor_skip);
 
     //IMU parameters
     // 3. 读取imu参数
@@ -1672,18 +1674,20 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
     // 若图片是3、4通道的彩色图，还需要转化成单通道灰度图
     if(mImGray.channels()==3)
     {
-        //sam
+        #ifdef RUN_TIME 
         clock_t start,end;
         start = clock();
+        #endif
         if(mbRGB)
             cvtColor(mImGray,mImGray,cv::COLOR_RGB2GRAY);
         else
             cvtColor(mImGray,mImGray,cv::COLOR_BGR2GRAY);
-
+        #ifdef RUN_TIME 
         end = clock();
         ofstream ofs;
         ofs.open("results/rgb2gary.txt", ios::app);
         ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
+        #endif
     }
     else if(mImGray.channels()==4)
     {
@@ -2137,8 +2141,8 @@ void Tracking::Track()
 #endif
 
         // Initial camera pose estimation using motion model or relocalization (if tracking is lost)
-        // mbOnlyTracking等于false表示正常SLAM模式（定位+地图更新），mbOnlyTracking等于true表示仅定位模式
-        // tracking 类构造时默认为false。在viewer中有个开关ActivateLocalizationMode，可以控制是否开启mbOnlyTracking
+        // mbOnlyTrackiong等于false表示正常SLAM模式（定位+地图更新），mbOnlyTracking等于true表示仅定位模式
+        // tracking 类构造时默认为false。在viewer中有个开关ActivateLocalizatinMode，可以控制是否开启mbOnlyTracking
         if(!mbOnlyTracking)
         {
 
@@ -2682,6 +2686,7 @@ void Tracking::Track()
         }
     }
 #endif
+    
 }
 
 /*
@@ -3196,16 +3201,18 @@ bool Tracking::TrackReferenceKeyFrame()
     // Step 2：通过词袋BoW加速当前帧与参考帧之间的特征点匹配
 
     //sam 3th byKeyFrame
+    #ifdef RUN_TIME
     clock_t start,end;
 	start = clock();
-
+    #endif
     
     int nmatches = matcher.SearchByBoW(mpReferenceKF,mCurrentFrame,vpMapPointMatches);
+    #ifdef RUN_TIME
     end = clock();
-     
     ofstream ofs;
     ofs.open("results/3th byKeyFrame.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
+    #endif
 
     // 匹配数目小于15，认为跟踪失败
     if(nmatches<15)
@@ -3413,17 +3420,18 @@ bool Tracking::TrackWithMotionModel()
     // Step 3：用上一帧地图点进行投影匹配，如果匹配点不够，则扩大搜索半径再来一次
 
     //sam 1th byLastFrame
+    #ifdef RUN_TIME
     clock_t start,end;
 	start = clock();
-
+    #endif
     
     int nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,th,mSensor==System::MONOCULAR || mSensor==System::IMU_MONOCULAR);
-    end = clock();
-     
+    #ifdef RUN_TIME
+    end = clock();  
     ofstream ofs;
     ofs.open("results/1th byLastFrame.txt", ios::app);
     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
-
+    #endif
     // If few matches, uses a wider window search
     // 如果匹配点太少，则扩大搜索半径再来一次
     if(nmatches<20)
@@ -3432,16 +3440,18 @@ bool Tracking::TrackWithMotionModel()
         fill(mCurrentFrame.mvpMapPoints.begin(),mCurrentFrame.mvpMapPoints.end(),static_cast<MapPoint*>(NULL));
 
         //sam 2th byLastFrame
+        #ifdef RUN_TIME
         clock_t start,end;
     	start = clock();
-
+        #endif
         
         nmatches = matcher.SearchByProjection(mCurrentFrame,mLastFrame,2*th,mSensor==System::MONOCULAR || mSensor==System::IMU_MONOCULAR);
+        #ifdef RUN_TIME
         end = clock();
-         
         ofstream ofs;
         ofs.open("results/2th byLastFrame.txt", ios::app);
         ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
+        #endif
         Verbose::PrintMess("Matches with wider search: " + to_string(nmatches), Verbose::VERBOSITY_NORMAL);
 
     }
@@ -4416,17 +4426,18 @@ bool Tracking::Relocalization()
             // 当前帧和候选关键帧用BoW进行快速匹配，匹配结果记录在vvpMapPointMatches，nmatches表示匹配的数目
 
             //sam 4th byKeyFrame
+            #ifdef RUN_TIME
             clock_t start,end;
         	start = clock();
-
+            #endif
                           
             int nmatches = matcher.SearchByBoW(pKF,mCurrentFrame,vvpMapPointMatches[i]);
+            #ifdef RUN_TIME
             end = clock();
-             
             ofstream ofs;
             ofs.open("results/4th byKeyFrame.txt", ios::app);
             ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
-            
+            #endif
             // 如果和当前帧的匹配数小于15,那么只能放弃这个关键帧
             if(nmatches<15)
             {
@@ -4537,16 +4548,18 @@ bool Tracking::Relocalization()
                     // 通过投影的方式将关键帧中未匹配的地图点投影到当前帧中, 生成新的匹配
 
                     //sam 5th byKeyFrame
+                    #ifdef RUN_TIME
                     clock_t start,end;
                 	start = clock();
-
+                    #endif
                     
                     int nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,10,100);
-                    end = clock();
-                     
+                    #ifdef RUN_TIME
+                    end = clock();   
                     ofstream ofs;
                     ofs.open("results/5th byKeyFrame.txt", ios::app);
                     ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
+                    #endif
 
                     // 如果通过投影过程新增了比较多的匹配特征点对
                     if(nadditional+nGood>=50)
@@ -4568,17 +4581,18 @@ bool Tracking::Relocalization()
                                     sFound.insert(mCurrentFrame.mvpMapPoints[ip]);
 
                             //sam 6th byKeyFrame
+                            #ifdef RUN_TIME
                             clock_t start,end;
 	                        start = clock();
-
+                            #endif
                             
                             nadditional =matcher2.SearchByProjection(mCurrentFrame,vpCandidateKFs[i],sFound,3,64);
+                            #ifdef RUN_TIME
                             end = clock();
-                             
                             ofstream ofs;
                             ofs.open("results/6th byKeyFrame.txt", ios::app);
                             ofs  <<""<<  double(end-start)/CLOCKS_PER_SEC<<"s"<<endl;
-
+                            #endif
                             // Final optimization
                             // 如果成功挽救回来，匹配数目达到要求，最后BA优化一下
                             if(nGood+nadditional>=50)

@@ -96,6 +96,7 @@ namespace ORB_SLAM3 {
 
         int nFeatures() {return nFeatures_;}
         int nLevels() {return nLevels_;}
+        int extractor_skip() {return extractor_skip_;}
         float initThFAST() {return initThFAST_;}
         float minThFAST() {return minThFAST_;}
         float scaleFactor() {return scaleFactor_;}
@@ -205,6 +206,7 @@ namespace ORB_SLAM3 {
         float scaleFactor_;
         int nLevels_;
         int initThFAST_, minThFAST_;
+        int extractor_skip_;
 
         /*
          * Viewer stuff

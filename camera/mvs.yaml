@@ -60,6 +60,9 @@ ORBextractor.nLevels: 8
 ORBextractor.iniThFAST: 10
 ORBextractor.minThFAST: 3
 
+#ORB Extractor Skip
+ORBextractor.extractor_skip: 200
+
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
 #---------------------------------------------------------------------------------------------
